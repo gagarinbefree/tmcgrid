@@ -1,26 +1,17 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {ReactElement} from 'react'
+import Table from './components/table/Table'
+import { AllEnterpriseModule, ModuleRegistry } from 'ag-grid-enterprise'
+import axios from 'axios'
 
-function App() {
+ModuleRegistry.registerModules([AllEnterpriseModule])
+axios.defaults.baseURL = 'http://localhost:8080'
+
+const App = (): ReactElement => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{margin: 50}}>
+        <Table />
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
