@@ -1,6 +1,6 @@
 import React from "react"
 import {IServerSideDatasource, IServerSideGetRowsParams} from 'ag-grid-enterprise'
-import axios, {AxiosResponse} from "axios";
+import axios, {AxiosResponse} from "axios"
 
 export interface IGridData {
     id: number
