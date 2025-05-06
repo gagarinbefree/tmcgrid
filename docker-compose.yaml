@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: "./server"
+    container_name: server
+    ports:
+    - "8080:8080"
+    command: node ./server/src/index.js
+  frontend:
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    build: ./client
