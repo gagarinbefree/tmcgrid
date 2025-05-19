@@ -15,8 +15,9 @@
     "typescript": "^4.4.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "debug": "react-scripts start",
+    "build": "react-scripts build",
+    "start": "set PORT=3000 && react-scripts start"
   },
   "eslintConfig": {
     "extends": [

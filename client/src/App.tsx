@@ -1,6 +1,6 @@
 import React, {ReactElement} from 'react'
 import Table from './components/table/Table'
-import { AllEnterpriseModule, ModuleRegistry } from 'ag-grid-enterprise'
+import {AllEnterpriseModule, ModuleRegistry} from 'ag-grid-enterprise'
 import axios from 'axios'
 
 ModuleRegistry.registerModules([AllEnterpriseModule])
@@ -11,6 +11,5 @@ const App = (): ReactElement => (
         <Table />
     </div>
 )
-
 
 export default App
