@@ -14,55 +14,113 @@ export interface IRequestParams extends Query {
 
 export interface IOrderBody {
     id: string
-    index: number
+    newId: string
 }
 
 export interface ICheckedBody {
     id: string
+    value: boolean
 }
 
 interface ICustomRequest<T> extends Request {
     body: T
 }
 
-const data: IGridData[] = generateData(1, 1000000)
-
-const swapElements = (id: string, index: number): void => {
-    const currentIndex = data.findIndex((item: IGridData) => item.id == id);
-    [data[currentIndex], data[index]] = [data[index], data[currentIndex]];
+interface IOrdered {
+    id: string
+    newId: string
 }
 
-const checkRow = (id: string): void => {
-    const row: IGridData | undefined = data.find((item: IGridData) => item.id == id)
-    if (!row)
-        return
+interface IChecked {
+    id: string,
+    value: boolean
+}
 
-    row.checked = !row.checked
+interface IGrid {
+    data: IGridData[]
+    orders: IOrdered[],
+    checks: IChecked[],
+
+    order: () => IGrid
+    checked: () => IGrid
+    filter: (filter: string) => IGrid
+    paginate: (start: number, end: number) => IGrid
+}
+
+const grid: IGrid = {
+    data: generateData(1, 1000000) as IGridData[],
+    orders: [] as IOrdered[],
+    checks: [] as IChecked[],
+
+    order(): IGrid {
+        const data: IGridData[] = [...this.data]
+
+        for (const item of this.orders) {
+            const currentIndex: number = data.findIndex((el: IGridData) => el.id == item.id)
+            const newIndex: number = data.findIndex((el: IGridData) => el.id == item.newId)
+            if (currentIndex == -1 || newIndex == -1)
+                continue
+
+            const [element] = data.splice(currentIndex, 1);
+            data.splice(newIndex - 1, 0, element);
+        }
+
+        return {...this, data}
+    },
+
+    checked(): IGrid {
+        const data: IGridData[] = [...this.data]
+
+        for (const checked of this.checks) {
+            const item: IGridData | undefined = data.find((item: IGridData) => item.id === checked.id)
+            item!.checked = checked.value
+        }
+0
+        return {...this, data}
+    },
+
+    filter(filter: string): IGrid {
+        const data: IGridData[] = filter ? this.data.filter((item: IGridData) => item.value.includes(filter.toLowerCase())) : [...this.data]
+
+        return {...this, data}
+    },
+
+    paginate(start: number, end: number): IGrid {
+        const data: IGridData[] = this.data.slice(start, end)
+
+        return {...this, data}
+    }
 }
 
 const gridController = {
-    getData: async (req: ITypedRequestQuery<IRequestParams>, res: Response): Promise<void> => {
+    getData: (req: ITypedRequestQuery<IRequestParams>, res: Response): void => {
         const params: IRequestParams = req.query
 
-        const filteredData: IGridData[] = params.search ? data.filter((item: IGridData) => item.value.includes(params.search.toLowerCase())) : data
-        const paginatedData: IGridData[] = filteredData.slice(parseInt(params.start), parseInt(params.end))
+        const data: IGridData[] = grid
+            .checked()
+            .order()
+            .filter(params.search)
+            .paginate(parseInt(params.start), parseInt(params.end))
+            .data
 
-        res.status(200).json(paginatedData)
+        res.status(200).json(data)
     },
 
-    orderData: async (req: ICustomRequest<IOrderBody>, res: Response): Promise<void> => {
-        swapElements(req.body.id, req.body.index)
+    orderData: (req: ICustomRequest<IOrderBody>, res: Response): void => {
+        grid.orders = [...grid.orders, { ...req.body }]
 
         res.status(200).send()
     },
 
-    checkedData: async (req: ICustomRequest<ICheckedBody>, res: Response): Promise<void> => {
-        checkRow(req.body.id)
+    checkedData: (req: ICustomRequest<ICheckedBody>, res: Response): void => {
+        const checked: ICheckedBody = req.body;
 
-        res.status(200).send()
+        grid.checks = [...grid.checks, checked]
+
+        res.status(200).send(grid.checks)
     },
 
-    errorHandler: async (err: Error, req: Request, res: Response, next: NextFunction): Promise<void> => {
+    errorHandler: (err: Error, req: Request, res: Response, next: NextFunction): void => {
         res.status(500).send()
     }
 }

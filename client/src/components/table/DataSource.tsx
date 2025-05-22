@@ -9,8 +9,8 @@ export interface IGridData {
 
 export interface ITableDataSource {
     createServerSideDatasource: (search: string) => IServerSideDatasource<IGridData>
-    updateRowOrderOnServer: (rowId: number, newIndex: number) => Promise<void>
-    updateCheckedOnServer: (id: number) => Promise<void>
+    updateRowOrderOnServer: (id: string, newId: string) => Promise<void>
+    updateCheckedOnServer: (id: string, value: boolean) => Promise<void>
 }
 
 const DataSource: ITableDataSource = {
@@ -37,18 +37,18 @@ const DataSource: ITableDataSource = {
         }
     },
 
-    async updateRowOrderOnServer(id: number, index: number): Promise<void> {
+    async updateRowOrderOnServer(id: string, newId: string): Promise<void> {
         try {
-            await axios.post('/api/grid/order', { id, index })
+            await axios.post('/api/grid/order', { id, newId })
         }
         catch (e: any) {
             console.error(e?.message)
         }
     },
 
-    async updateCheckedOnServer(id: number): Promise<void> {
+    async updateCheckedOnServer(id: string, value: boolean): Promise<void> {
         try {
-            await axios.post('/api/grid/checked', {id})
+            await axios.post('/api/grid/checked', {id, value})
         }
         catch (e: any) {
             console.error(e?.message)

@@ -9,22 +9,23 @@ import {
     themeQuartz
 } from 'ag-grid-enterprise'
 import DataSource, {IGridData} from './DataSource'
-import {GridReadyEvent, RowDragEndEvent} from 'ag-grid-community/dist/types/src/events'
+import {RowDragEndEvent} from 'ag-grid-community/dist/types/src/events'
 import {RowSelectionOptions} from 'ag-grid-community/dist/types/src/entities/gridOptions'
 
 const Table: FC = (): ReactElement => {
     const [search, setSearch] = useState('')
 
     const columnDefs = useMemo<ColDef<IGridData>[]>(() => [
-        { field: "id", width: 100, rowDrag: true },
-        { field: "value", flex: 2 },
+        { field: "id", width: 100, rowDrag: true, sortable: false },
+        { field: "value", flex: 2, sortable: false },
         {
             field: "checked",
             headerName: "Selected",
             width: 100,
             cellRenderer: 'agCheckboxCellRenderer',
             cellEditor: 'agCheckboxCellEditor',
-            editable: true
+            editable: true,
+            sortable: false
         }
     ], [])
 
@@ -42,13 +43,15 @@ const Table: FC = (): ReactElement => {
         DataSource.createServerSideDatasource(search);
 
     const onCellValueChanged = useCallback(async (event: CellValueChangedEvent<IGridData>): Promise<void> =>
-        await DataSource.updateCheckedOnServer(parseInt(event.data.id)), [])
+        await DataSource.updateCheckedOnServer(event.data.id, event.newValue), [])
 
     const onRowDragEnd = useCallback(async (event: RowDragEndEvent<IGridData>): Promise<void> => {
         if (!event.overNode || !event.node.id)
             return
 
-        await DataSource.updateRowOrderOnServer(parseInt(event.node.id), event.overIndex == 0 ? 0 : event.overIndex - 1)
+        if (event.overNode.data)
+            await DataSource.updateRowOrderOnServer(event.node.id, event.overNode.data.id)
+
         event.api.refreshServerSide({ purge: false });
     }, [])
 
