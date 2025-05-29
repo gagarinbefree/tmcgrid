@@ -38,7 +38,7 @@ interface IChecked {
 
 interface IGrid {
     data: IGridData[]
-    orders: IOrdered[],
+    orders: Map<string, string>
     checks: IChecked[],
 
     order: () => IGrid
@@ -49,20 +49,22 @@ interface IGrid {
 
 const grid: IGrid = {
     data: generateData(1, 1000000) as IGridData[],
-    orders: [] as IOrdered[],
+    orders: new Map<string, string>(),
     checks: [] as IChecked[],
 
     order(): IGrid {
         const data: IGridData[] = [...this.data]
 
         for (const item of this.orders) {
-            const currentIndex: number = data.findIndex((el: IGridData) => el.id == item.id)
-            const newIndex: number = data.findIndex((el: IGridData) => el.id == item.newId)
-            if (currentIndex == -1 || newIndex == -1)
+            const currentIndex: number = data.findIndex((el: IGridData) => el.id == item[0])
+            if (currentIndex == -1)
+                continue
+            const newIndex: number = data.findIndex((el: IGridData) => el.id == item[1])
+            if (newIndex == -1)
                 continue
 
             const [element] = data.splice(currentIndex, 1);
-            data.splice(newIndex - 1, 0, element);
+            data.splice(newIndex, 0, element);
         }
 
         return {...this, data}
@@ -107,7 +109,7 @@ const gridController = {
     },
 
     orderData: (req: ICustomRequest<IOrderBody>, res: Response): void => {
-        grid.orders = [...grid.orders, { ...req.body }]
+        grid.orders.set(req.body.id, req.body.newId)
 
         res.status(200).send()
     },

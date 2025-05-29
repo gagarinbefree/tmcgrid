@@ -5,7 +5,7 @@ import {
     ColDef,
     colorSchemeDarkBlue,
     GetRowIdParams,
-    IServerSideDatasource,
+    IServerSideDatasource, RowDragMoveEvent,
     themeQuartz
 } from 'ag-grid-enterprise'
 import DataSource, {IGridData} from './DataSource'
@@ -45,14 +45,16 @@ const Table: FC = (): ReactElement => {
     const onCellValueChanged = useCallback(async (event: CellValueChangedEvent<IGridData>): Promise<void> =>
         await DataSource.updateCheckedOnServer(event.data.id, event.newValue), [])
 
-    const onRowDragEnd = useCallback(async (event: RowDragEndEvent<IGridData>): Promise<void> => {
-        if (!event.overNode || !event.node.id)
+
+    const onRowDragMove = useCallback(async (event: RowDragMoveEvent<IGridData>): Promise<void> => {
+        if (!event.node.id || !event.overNode?.id)
             return
 
-        if (event.overNode.data)
-            await DataSource.updateRowOrderOnServer(event.node.id, event.overNode.data.id)
+        if (event.node.id !== event.overNode.id) {
+            await DataSource.updateRowOrderOnServer(event.node.id, event.overNode.id)
 
-        event.api.refreshServerSide({ purge: false });
+            event.api.refreshServerSide({purge: false});
+        }
     }, [])
 
     return (
@@ -79,8 +81,8 @@ const Table: FC = (): ReactElement => {
                 defaultColDef={defaultColDef}
                 getRowId={(params: GetRowIdParams<IGridData>) => params.data.id}
                 rowSelection={rowSelection}
-                onRowDragEnd={onRowDragEnd}
                 onCellValueChanged={onCellValueChanged}
+                onRowDragMove={onRowDragMove}
             />
         </div>
     ) as React.ReactElement<unknown, string | React.JSXElementConstructor<any>>
