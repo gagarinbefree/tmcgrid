@@ -14,27 +14,17 @@ async function long(){
 }
 async function start() {
     try{
-        console.log( await long());
-        console.log(await short());
-        console.log('success');
-
-        /*let promise1 = short();
+        let promise1 = short();
         let promise2 = long();
         console.log(await promise2); // 1000ms timeout
         console.log(await promise1); // 500ms timeout
-        console.log('success');*/
+        console.log('success');
     }
     catch(e){
         console.error("CATCH ERROR");
     }
 }
-
-(async () => {
-    await start();
-    console.log('test done');
-})()
-
-//start().then(()=>console.log('test done'));
+start().then(()=>console.log('test done'));
 
 // описать выходные данные, пример:
 // 1 - CATCH ERROR
