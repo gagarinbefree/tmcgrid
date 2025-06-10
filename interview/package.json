@@ -1,0 +1,15 @@
+{
+  "name": "tmc-interview",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
