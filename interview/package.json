@@ -3,7 +3,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node --trace-warnings app.js"
   },
   "keywords": [],
   "author": "",
