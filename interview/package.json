@@ -3,13 +3,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node app.js"
   },
   "keywords": [],
   "author": "",
-  "license": "",
-  "dependencies": {
-  },
-  "devDependencies": {
-  }
+  "license": ""
 }
